@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="5">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingRight="5dp"
+        android:layout_weight="5">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/news_title"
+            android:id="@+id/newsTitle"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:padding="2dp"
+            android:clickable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/news_brief"
+            android:id="@+id/newsBrief"
+            android:layout_below="@+id/newsTitle"
+            android:layout_alignRight="@+id/newsTitle"
+            android:layout_alignEnd="@+id/newsTitle"
+            android:padding="2dp"
+            android:clickable="true" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/newsBrief"
+            android:weightSum="2"
+            android:id="@+id/news_Time_Resource">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/news_time"
+                android:id="@+id/newsTime"
+                android:layout_weight="1"
+                android:padding="2dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/news_resource"
+                android:id="@+id/newsResource"
+                android:layout_weight="1"
+                android:padding="2dp"
+                android:clickable="true" />
+        </LinearLayout>
+
+        <include layout="@layout/news_toolbar"
+            android:layout_below="@+id/news_Time_Resource"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"></include>
+    </RelativeLayout>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/newsImage"
+        android:contentDescription="@string/newsImage"
+        android:src="@mipmap/rss"
+        android:background="@null"
+        android:layout_weight="2"
+        android:layout_gravity="center" />
+
+</LinearLayout>

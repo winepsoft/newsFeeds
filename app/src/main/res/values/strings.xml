@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">NewsReader</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="newsImage">newsImage</string>
+    <string name="news_book_Mark">newsBookMark</string>
+    <string name="news_share">newsShare</string>
+    <string name="news_title">News title</string>
+    <string name="news_brief">News Brief</string>
+    <string name="news_time">News Time</string>
+    <string name="news_resource">News Resource</string>
+    <string name="back_button">backButton</string>
+</resources>
