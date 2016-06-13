@@ -3,8 +3,10 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
+
+
+    <!-- Content For All Image Buttons In Application  -->
     <string name="newsImage">newsImage</string>
     <string name="news_book_Mark">newsBookMark</string>
     <string name="news_share">newsShare</string>
@@ -14,4 +16,14 @@
     <string name="news_resource">News Resource</string>
     <string name="back_button">backButton</string>
     <string name="news_group_title">News Group Title</string>
+
+    <!-- navigation Drawer Item Name -->
+    <string name="communicate">برقراری ارتباطات</string>
+    <string name="share">اشتراک گذاری</string>
+    <string name="for_us">درباره ما</string>
+    <string name="settings">تنظیمات</string>
+    <string name="newsGroup">گروهای خبری</string>
+    <string name="book_mark">اخبار علامت گذاری شده</string>
+
+
 </resources>

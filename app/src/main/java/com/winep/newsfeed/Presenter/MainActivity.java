@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -58,6 +59,19 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Menu m = navigationView.getMenu() ;
+        SubMenu topChannelMenu = m.addSubMenu(R.string.newsGroup);
+        topChannelMenu.add("گروه خبری 1");
+        topChannelMenu.add("گروه خبری 2");
+        topChannelMenu.add("گروه خبری 3");
+        topChannelMenu.add("گروه خبری 4");
+        topChannelMenu.add("گروه خبری 5");
+        m.add(R.string.book_mark).setIcon(R.drawable.ic_menu_gallery);
+        m.add(R.string.settings).setIcon(R.drawable.ic_menu_manage);
+        m.add(R.string.share).setIcon(R.drawable.ic_menu_share);
+        m.add(R.string.for_us).setIcon(R.drawable.ic_menu_send);
+
 
         int newsGroupNumber;
         String newsGroupTitle;
@@ -151,22 +165,31 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (item.getTitle().equals("گروه خبری 1")){
+            Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+            intent.putExtra("resourceName", item.getTitle());
+            context.startActivity(intent);
         }
-
+        else if (item.getTitle().equals("گروه خبری 2")){
+            Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+            intent.putExtra("resourceName", item.getTitle());
+            context.startActivity(intent);
+        }
+        else if (item.getTitle().equals("گروه خبری 3")){
+            Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+            intent.putExtra("resourceName", item.getTitle());
+            context.startActivity(intent);
+        }
+        else if (item.getTitle().equals("گروه خبری 4")){
+            Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+            intent.putExtra("resourceName", item.getTitle());
+            context.startActivity(intent);
+        }
+        else if (item.getTitle().equals("گروه خبری 5")){
+            Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+            intent.putExtra("resourceName", item.getTitle());
+            context.startActivity(intent);
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
