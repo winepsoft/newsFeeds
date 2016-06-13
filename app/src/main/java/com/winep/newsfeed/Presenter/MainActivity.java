@@ -1,6 +1,7 @@
 package com.winep.newsfeed.Presenter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,12 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.winep.newsfeed.Adapter.NewsAdapter;
-import com.winep.newsfeed.Adapter.NewsGroupExpandableAdapter;
-import com.winep.newsfeed.Adapter.NewsGroupList;
 import com.winep.newsfeed.DataModel.News;
-import com.winep.newsfeed.DataModel.NewsGroup;
 import com.winep.newsfeed.R;
 import com.winep.newsfeed.Utility.DividerItemDecorationRecyclerView;
 
@@ -29,8 +29,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView newsRecyclerView;
     private Context context;
+    private LinearLayout mainLayout;
 
 
     @Override
@@ -59,20 +59,45 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        int newsGroupNumber;
+        String newsGroupTitle;
+
         ArrayList<News> listNews = new ArrayList<News>();
-        listNews = createNews(10);
+        listNews = createNews(3);
         NewsAdapter adapter = new NewsAdapter(context,listNews);
 
-        ArrayList<NewsGroupList> listNewsGroup=new ArrayList<NewsGroupList>();
-        for (int i=0;i<10;i++){
-            NewsGroupList aNewsGroupList=new NewsGroupList(listNews);
+        mainLayout=(LinearLayout)findViewById(R.id.mainLayout);
+        for (int i=0;i<5;i++){
+
+            LinearLayout layout = new LinearLayout(this);
+            layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            layout.setOrientation(LinearLayout.VERTICAL);
+
+            View newsGroupLayout = getLayoutInflater().inflate(R.layout.news_group_item_for_home,layout, false);
+            RecyclerView newsRecyclerView=(RecyclerView)newsGroupLayout.findViewById(R.id.newsGroupRecyclerView);
+            Button btnNewsGroupTitle=(Button)newsGroupLayout.findViewById(R.id.btn_news_group_title);
+
+            newsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            newsRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
+            newsRecyclerView.setAdapter(adapter);
+
+            newsGroupNumber=i+1;
+            newsGroupTitle="گروه خبری شماره "+newsGroupNumber;
+            btnNewsGroupTitle.setText(newsGroupTitle);
+            final String finalNewsGroupTitle = newsGroupTitle;
+            btnNewsGroupTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+                    intent.putExtra("resourceName", finalNewsGroupTitle);
+                    context.startActivity(intent);
+                }
+            });
+
+            layout.addView(newsGroupLayout);
+            mainLayout.addView(layout);
         }
 
-        newsRecyclerView = (RecyclerView) findViewById(R.id.mainActivityRecyclerView);
-        newsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        newsRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
-        newsRecyclerView.setAdapter(adapter);
-        //NewsGroupExpandableAdapter adapter1= new NewsGroupExpandableAdapter(context,listNewsGroup);
     }
 
 

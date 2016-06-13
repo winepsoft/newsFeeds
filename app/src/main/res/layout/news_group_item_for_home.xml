@@ -3,12 +3,16 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/newsGroupTitle"
-        android:layout_gravity="center"
-        android:gravity="right"
+        android:text="@string/news_group_title"
+        android:id="@+id/btn_news_group_title"
+        android:gravity="center"
         android:background="@color/colorNewsGroupBackground"/>
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/newsGroupRecyclerView">
+    </android.support.v7.widget.RecyclerView>
 </LinearLayout>

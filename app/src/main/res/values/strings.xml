@@ -13,4 +13,5 @@
     <string name="news_time">News Time</string>
     <string name="news_resource">News Resource</string>
     <string name="back_button">backButton</string>
+    <string name="news_group_title">News Group Title</string>
 </resources>
