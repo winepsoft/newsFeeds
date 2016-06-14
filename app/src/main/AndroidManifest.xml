@@ -22,6 +22,7 @@
         </activity>
         <activity android:name=".Presenter.WebView"/>
         <activity android:name=".Presenter.NewsOfAGroupActivity"/>
+        <activity android:name=".Presenter.SettingsActivity"/>
     </application>
 
 </manifest>

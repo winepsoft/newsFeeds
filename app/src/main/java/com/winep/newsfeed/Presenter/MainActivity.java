@@ -190,6 +190,11 @@ public class MainActivity extends AppCompatActivity
             intent.putExtra("resourceName", item.getTitle());
             context.startActivity(intent);
         }
+        else if (item.getTitle().equals("تنظیمات")){
+            Intent intent=new Intent(context,SettingsActivity.class);
+            intent.putExtra("pageName", item.getTitle());
+            context.startActivity(intent);
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

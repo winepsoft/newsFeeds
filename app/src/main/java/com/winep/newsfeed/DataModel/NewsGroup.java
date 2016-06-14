@@ -8,12 +8,13 @@ import java.util.ArrayList;
 public class NewsGroup {
 
     private String title;
-    private ArrayList<News> newsOfGroup;
+    private int newsGroupId;
 
-    public NewsGroup(String newsGroupTitle,ArrayList<News> newsOfGroup){
+    public NewsGroup(String newsGroupTitle,int newsGroupId){
 
         title=newsGroupTitle;
-        this.newsOfGroup=newsOfGroup;
+        this.newsGroupId=newsGroupId;
+
     }
 
     public String getTitle() {
@@ -24,11 +25,11 @@ public class NewsGroup {
         this.title = title;
     }
 
-    public ArrayList<News> getNewsOfGroup() {
-        return newsOfGroup;
+    public int getNewsGroupId() {
+        return newsGroupId;
     }
 
-    public void setNewsOfGroup(ArrayList<News> newsOfGroup) {
-        this.newsOfGroup = newsOfGroup;
+    public void setNewsGroupId(int newsGroupId) {
+        this.newsGroupId = newsGroupId;
     }
 }
