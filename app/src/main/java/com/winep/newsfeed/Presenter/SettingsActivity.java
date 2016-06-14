@@ -13,6 +13,10 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropM
 import com.winep.newsfeed.Adapter.DragRecyclerItemAdapter;
 import com.winep.newsfeed.Adapter.NewsGroupAddAdapter;
 import com.winep.newsfeed.DataModel.NewsGroup;
+import com.winep.newsfeed.Presenter.Observer.ObserverAddNewsGroup;
+import com.winep.newsfeed.Presenter.Observer.ObserverAddNewsGroupListener;
+import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroup;
+import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroupListener;
 import com.winep.newsfeed.R;
 import com.winep.newsfeed.Utility.DividerItemDecorationRecyclerView;
 
@@ -29,6 +33,8 @@ public class SettingsActivity extends Activity {
     private TextView txtPageName;
     private Spinner spinnerNumberOfNewsGroup;
     private Context context;
+    private RecyclerViewDragDropManager dragMgr;
+    DragRecyclerItemAdapter dragRecyclerItemAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,26 +60,56 @@ public class SettingsActivity extends Activity {
         spinnerNumberOfNewsGroup.setAdapter(adapter);
 
         // Setup D&D feature and RecyclerView for remove and sort news goup
-        ArrayList<NewsGroup> listNewsGroups = new ArrayList<NewsGroup>();
+        final ArrayList<NewsGroup> listNewsGroups = new ArrayList<NewsGroup>();
         for (int i = 0; i < 5; i++) {
-            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i);
+            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i+1);
             listNewsGroups.add(aNewsGroup);
         }
-        RecyclerViewDragDropManager dragMgr = new RecyclerViewDragDropManager();
+        dragMgr = new RecyclerViewDragDropManager();
         dragMgr.setInitiateOnMove(false);
         dragMgr.setInitiateOnLongPress(true);
         removeNewsGroupRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        removeNewsGroupRecyclerView.setAdapter(dragMgr.createWrappedAdapter(new DragRecyclerItemAdapter(listNewsGroups)));
+        dragRecyclerItemAdapter=new DragRecyclerItemAdapter(listNewsGroups);
+        removeNewsGroupRecyclerView.setAdapter(dragMgr.createWrappedAdapter(dragRecyclerItemAdapter));
         dragMgr.attachRecyclerView(removeNewsGroupRecyclerView);
 
         //setup recycler view for add news group
-        ArrayList<NewsGroup> listNewsGroupsAdd = new ArrayList<NewsGroup>();
+        final ArrayList<NewsGroup> listNewsGroupsAdd = new ArrayList<NewsGroup>();
         for (int i = 6; i < 8; i++) {
-            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i);
+            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i+1);
             listNewsGroupsAdd.add(aNewsGroup);
         }
-        NewsGroupAddAdapter addAdapter=new NewsGroupAddAdapter(context,listNewsGroupsAdd);
+        final NewsGroupAddAdapter addAdapter=new NewsGroupAddAdapter(context,listNewsGroupsAdd);
         addNewsGroupRecyclerView.setAdapter(addAdapter);
+
+        ObserverAddNewsGroup.changeAddNewsGroupListener(new ObserverAddNewsGroupListener() {
+            @Override
+            public void addNewsGroup() {
+                int newsGroupId= ObserverAddNewsGroup.getAddNewsGroup();
+                NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+newsGroupId,newsGroupId);
+                dragRecyclerItemAdapter.addItem(aNewsGroup);
+                for (int i=0;i<listNewsGroupsAdd.size();i++){
+                    if (listNewsGroupsAdd.get(i).getNewsGroupId()==aNewsGroup.getNewsGroupId())
+                        addAdapter.removeANewsGroup(listNewsGroupsAdd.get(i));
+                }
+
+            }
+        });
+
+        ObserverRemoveNewsGroup.changeRemoveNewsGroupListener(new ObserverRemoveNewsGroupListener() {
+            @Override
+            public void removeNewsGroup() {
+                int newsGroupId= ObserverRemoveNewsGroup.getRemoveNewsGroup();
+                NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+newsGroupId,newsGroupId);
+                addAdapter.addItem(aNewsGroup);
+                for (int i=0;i<listNewsGroups.size();i++){
+                    if (listNewsGroups.get(i).getNewsGroupId()==aNewsGroup.getNewsGroupId())
+                        dragRecyclerItemAdapter.removeItem(listNewsGroups.get(i));
+                }
+
+
+            }
+        });
 
     }
 

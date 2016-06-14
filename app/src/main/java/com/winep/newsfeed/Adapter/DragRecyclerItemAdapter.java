@@ -4,12 +4,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.winep.newsfeed.DataModel.NewsGroup;
+import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroup;
 import com.winep.newsfeed.R;
 
 import java.util.List;
@@ -39,8 +42,14 @@ public class DragRecyclerItemAdapter extends RecyclerView.Adapter<DragRecyclerIt
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        NewsGroup item = listNewsGroup.get(position);
+        final NewsGroup item = listNewsGroup.get(position);
         holder.textView.setText(item.getTitle());
+        holder.btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ObserverRemoveNewsGroup.setRemoveNewsGroup(item.getNewsGroupId());
+            }
+        });
     }
 
     @Override
@@ -72,11 +81,23 @@ public class DragRecyclerItemAdapter extends RecyclerView.Adapter<DragRecyclerIt
 
     static class MyViewHolder extends AbstractDraggableItemViewHolder {
         TextView textView;
+        ImageButton btnDelete;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView.findViewById(android.R.id.text1);
+            btnDelete=(ImageButton) itemView.findViewById(R.id.btn_delete_from_news_group_list);
         }
+    }
+
+    public void addItem(NewsGroup aNewsGroup){
+        listNewsGroup.add(listNewsGroup.size(),aNewsGroup);
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(NewsGroup aNewsGroup){
+        listNewsGroup.remove(aNewsGroup);
+        notifyDataSetChanged();
     }
 
 }

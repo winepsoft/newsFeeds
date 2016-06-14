@@ -1,7 +1,6 @@
 package com.winep.newsfeed.Adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.winep.newsfeed.DataModel.News;
 import com.winep.newsfeed.DataModel.NewsGroup;
-import com.winep.newsfeed.Presenter.NewsOfAGroupActivity;
-import com.winep.newsfeed.Presenter.WebView;
+import com.winep.newsfeed.Presenter.Observer.ObserverAddNewsGroup;
 import com.winep.newsfeed.R;
-import com.winep.newsfeed.Utility.NewsToolbarManager;
 
 import java.util.ArrayList;
 
@@ -43,6 +39,12 @@ public class NewsGroupAddAdapter extends RecyclerView.Adapter<NewsGroupAddAdapte
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final NewsGroup aNewsGroup = newsList.get(position);
         holder.newsTitle.setText(aNewsGroup.getTitle());
+        holder.newsAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ObserverAddNewsGroup.setAddNewsGroup(aNewsGroup.getNewsGroupId());
+            }
+        });
     }
 
     @Override
@@ -59,5 +61,15 @@ public class NewsGroupAddAdapter extends RecyclerView.Adapter<NewsGroupAddAdapte
             newsAdd=(ImageButton)view.findViewById(R.id.btn_delete_from_news_group_list);
             newsTitle=(TextView)view.findViewById(R.id.news_title);
         }
+    }
+
+    public void addItem(NewsGroup aNewsGroup){
+        newsList.add(newsList.size(),aNewsGroup);
+        notifyDataSetChanged();
+    }
+
+    public void removeANewsGroup(NewsGroup aNewsGroup){
+        newsList.remove(aNewsGroup);
+        notifyDataSetChanged();
     }
 }
