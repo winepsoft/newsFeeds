@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.winep.newsfeed.Adapter.DragRecyclerItemAdapter;
+import com.winep.newsfeed.Adapter.NewsGroupAddAdapter;
 import com.winep.newsfeed.DataModel.NewsGroup;
 import com.winep.newsfeed.R;
 import com.winep.newsfeed.Utility.DividerItemDecorationRecyclerView;
@@ -23,7 +24,8 @@ import java.util.ArrayList;
 public class SettingsActivity extends Activity {
 
     private String pageName;
-    private RecyclerView recyclerView;
+    private RecyclerView removeNewsGroupRecyclerView;
+    private RecyclerView addNewsGroupRecyclerView;
     private TextView txtPageName;
     private Spinner spinnerNumberOfNewsGroup;
     private Context context;
@@ -34,9 +36,11 @@ public class SettingsActivity extends Activity {
         setContentView(R.layout.settings);
         context=this;
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerViewSettings);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
+        removeNewsGroupRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewSettings);
+        removeNewsGroupRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
+        addNewsGroupRecyclerView= (RecyclerView) findViewById(R.id.recyclerViewSettings_add);
+        addNewsGroupRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        addNewsGroupRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
 
         txtPageName=(TextView)findViewById(R.id.title);
         pageName=getIntent().getStringExtra("pageName");
@@ -49,19 +53,28 @@ public class SettingsActivity extends Activity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.settings_spinner_item, spinnerContent);
         spinnerNumberOfNewsGroup.setAdapter(adapter);
 
+        // Setup D&D feature and RecyclerView for remove and sort news goup
         ArrayList<NewsGroup> listNewsGroups = new ArrayList<NewsGroup>();
         for (int i = 0; i < 5; i++) {
             NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i);
             listNewsGroups.add(aNewsGroup);
         }
-
-        // Setup D&D feature and RecyclerView
         RecyclerViewDragDropManager dragMgr = new RecyclerViewDragDropManager();
         dragMgr.setInitiateOnMove(false);
         dragMgr.setInitiateOnLongPress(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(dragMgr.createWrappedAdapter(new DragRecyclerItemAdapter(listNewsGroups)));
-        dragMgr.attachRecyclerView(recyclerView);
+        removeNewsGroupRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        removeNewsGroupRecyclerView.setAdapter(dragMgr.createWrappedAdapter(new DragRecyclerItemAdapter(listNewsGroups)));
+        dragMgr.attachRecyclerView(removeNewsGroupRecyclerView);
+
+        //setup recycler view for add news group
+        ArrayList<NewsGroup> listNewsGroupsAdd = new ArrayList<NewsGroup>();
+        for (int i = 6; i < 8; i++) {
+            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i);
+            listNewsGroupsAdd.add(aNewsGroup);
+        }
+        NewsGroupAddAdapter addAdapter=new NewsGroupAddAdapter(context,listNewsGroupsAdd);
+        addNewsGroupRecyclerView.setAdapter(addAdapter);
+
     }
 
 }

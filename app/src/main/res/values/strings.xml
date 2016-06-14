@@ -28,6 +28,7 @@
     <!-- Settings Page-->
     <string name="settings_number_of_news">تعداد اخبار نمایشی در صفحه ی اصلی :</string>
     <string name="settings_customize_news_group">گروهای خبری قابل نمایش در صفحه ی اصلی را بر اساس علاقه مندی خود مرتب و یا حذف کنید : </string>
+    <string name="settings_customize_news_group_add">گروهای خبری که می توانید به مجموعه ی علاقه مندی های خود اضافه کنید : </string>
 
 
 </resources>
