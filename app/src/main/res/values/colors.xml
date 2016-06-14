@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorCustomActionBarTitle">#000000</color>
     <color name="colorNewsGroupBackground">#FFD392</color>
+    <color name="colorDivider">#7F7F7E</color>
 </resources>
