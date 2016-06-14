@@ -14,6 +14,7 @@ import com.winep.newsfeed.DataModel.News;
 import com.winep.newsfeed.Presenter.NewsOfAGroupActivity;
 import com.winep.newsfeed.Presenter.WebView;
 import com.winep.newsfeed.R;
+import com.winep.newsfeed.Utility.NewsToolbarManager;
 
 import java.util.ArrayList;
 
@@ -84,6 +85,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
                 intent.putExtra("url",aNews.getDescriptionLink());
                 intent.putExtra("newsTitle",holder.newsTitle.getText());
                 context.startActivity(intent);
+            }
+        });
+
+        holder.newsShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String shareContent=aNews.getTitle()+"\n"+
+                        aNews.getDescriptionLink()+"\n"+
+                        aNews.getResource();
+                NewsToolbarManager.getInstance().shareNews(context,shareContent);
             }
         });
     }
