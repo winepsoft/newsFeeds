@@ -3,6 +3,10 @@
     package="com.winep.newsfeed">
     
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+
 
     <application
         android:allowBackup="true"
@@ -23,6 +27,13 @@
         <activity android:name=".Presenter.WebView"/>
         <activity android:name=".Presenter.NewsOfAGroupActivity"/>
         <activity android:name=".Presenter.SettingsActivity"/>
+
+        <receiver android:name=".Presenter.Services.CheckNetworkConnection">
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

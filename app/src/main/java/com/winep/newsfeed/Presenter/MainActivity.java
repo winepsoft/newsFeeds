@@ -23,7 +23,9 @@ import android.widget.LinearLayout;
 import com.winep.newsfeed.Adapter.NewsAdapter;
 import com.winep.newsfeed.DataModel.News;
 import com.winep.newsfeed.R;
+import com.winep.newsfeed.Utility.Configuration;
 import com.winep.newsfeed.Utility.DividerItemDecorationRecyclerView;
+import com.winep.newsfeed.Utility.UtilitiesFunction;
 
 import java.util.ArrayList;
 
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         context=this;
+        Configuration.getConfig().connectionStatus= UtilitiesFunction.getInstance().checkNetworkConnection(context);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
