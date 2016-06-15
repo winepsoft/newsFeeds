@@ -48,6 +48,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
         holder.newsTime.setText(aNews.getDate());
         holder.newsResource.setText(aNews.getResource());
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, WebView.class);
+                intent.putExtra("url",aNews.getDescriptionLink());
+                intent.putExtra("newsTitle",holder.newsTitle.getText());
+                context.startActivity(intent);
+            }
+        });
+
         holder.newsResource.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +114,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
         return newsList.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder  {
 
         public ImageButton newsShare;
         public ImageButton newsBookMark;
