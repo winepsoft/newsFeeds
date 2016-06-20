@@ -2,9 +2,12 @@ package com.winep.newsfeed.Presenter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -18,6 +21,7 @@ import com.winep.newsfeed.Presenter.Observer.ObserverAddNewsGroupListener;
 import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroup;
 import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroupListener;
 import com.winep.newsfeed.R;
+import com.winep.newsfeed.Utility.Configuration;
 import com.winep.newsfeed.Utility.DividerItemDecorationRecyclerView;
 
 import java.util.ArrayList;
@@ -35,12 +39,16 @@ public class SettingsActivity extends Activity {
     private Context context;
     private RecyclerViewDragDropManager dragMgr;
     DragRecyclerItemAdapter dragRecyclerItemAdapter;
+    private SharedPreferences sharedPreferencesNumberNews;
+    private int numberOfNews;
+    private int defaultNumberOfNews;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         context=this;
+        defaultNumberOfNews = Configuration.getConfig().defaultNumberOfNewsInHome;
 
         removeNewsGroupRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewSettings);
         removeNewsGroupRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
@@ -54,10 +62,27 @@ public class SettingsActivity extends Activity {
 
         spinnerNumberOfNewsGroup=(Spinner)findViewById(R.id.spinner_settings_number_of_news);
         ArrayList<String> spinnerContent=new ArrayList<String>();
-        for (int i = 1; i <= 10; i++)
+        for (int i = defaultNumberOfNews; i <= 10; i++)
             spinnerContent.add(String.valueOf(i));
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.settings_spinner_item, spinnerContent);
         spinnerNumberOfNewsGroup.setAdapter(adapter);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Configuration.getConfig().sharedPerformanceNumberNewsName, MODE_PRIVATE);
+        final SharedPreferences.Editor editor = pref.edit();
+        numberOfNews = pref.getInt(Configuration.getConfig().sharedPerformanceNumberNewsName, defaultNumberOfNews);
+        spinnerNumberOfNewsGroup.setSelection(numberOfNews - defaultNumberOfNews);
+        spinnerNumberOfNewsGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                editor.putInt(Configuration.getConfig().sharedPerformanceNumberNewsName, position + defaultNumberOfNews);
+                editor.commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
 
         // Setup D&D feature and RecyclerView for remove and sort news goup
         final ArrayList<NewsGroup> listNewsGroups = new ArrayList<NewsGroup>();

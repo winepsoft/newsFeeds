@@ -2,6 +2,7 @@ package com.winep.newsfeed.Presenter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity
         String newsGroupTitle;
 
         ArrayList<News> listNews = new ArrayList<News>();
-        listNews = createNews(3);
+        listNews = createNews(getNumberOfNewsInHome());
         NewsAdapter adapter = new NewsAdapter(context,listNews);
 
         mainLayout=(LinearLayout)findViewById(R.id.mainLayout);
@@ -117,6 +118,11 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private int getNumberOfNewsInHome(){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Configuration.getConfig().sharedPerformanceNumberNewsName, MODE_PRIVATE);
+        final SharedPreferences.Editor editor = pref.edit();
+        return pref.getInt(Configuration.getConfig().sharedPerformanceNumberNewsName,Configuration.getConfig().defaultNumberOfNewsInHome);
+    }
 
     private ArrayList<News> createNews(int newsNumber){
         ArrayList<News> listNews =new ArrayList<News>();
