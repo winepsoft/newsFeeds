@@ -16,8 +16,10 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropM
 import com.winep.newsfeed.Adapter.DragRecyclerItemAdapter;
 import com.winep.newsfeed.Adapter.NewsGroupAddAdapter;
 import com.winep.newsfeed.DataModel.NewsGroup;
+import com.winep.newsfeed.Handler.ServerConnectionHandler;
 import com.winep.newsfeed.Presenter.Observer.ObserverAddNewsGroup;
 import com.winep.newsfeed.Presenter.Observer.ObserverAddNewsGroupListener;
+import com.winep.newsfeed.Presenter.Observer.ObserverChangeNumberOfNewsInSettings;
 import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroup;
 import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroupListener;
 import com.winep.newsfeed.R;
@@ -38,16 +40,20 @@ public class SettingsActivity extends Activity {
     private Spinner spinnerNumberOfNewsGroup;
     private Context context;
     private RecyclerViewDragDropManager dragMgr;
-    DragRecyclerItemAdapter dragRecyclerItemAdapter;
+    private DragRecyclerItemAdapter dragRecyclerItemAdapter;
     private SharedPreferences sharedPreferencesNumberNews;
     private int numberOfNews;
     private int defaultNumberOfNews;
+    private ServerConnectionHandler serverConnectionHandler;
+    private  ArrayList<NewsGroup> favoriteNewsGroupsList;
+    private ArrayList<NewsGroup> noFavoriteNewsGroupsList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         context=this;
+        serverConnectionHandler=ServerConnectionHandler.getInstance(context);
         defaultNumberOfNews = Configuration.getConfig().defaultNumberOfNewsInHome;
 
         removeNewsGroupRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewSettings);
@@ -75,6 +81,7 @@ public class SettingsActivity extends Activity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 editor.putInt(Configuration.getConfig().sharedPerformanceNumberNewsName, position + defaultNumberOfNews);
                 editor.commit();
+                ObserverChangeNumberOfNewsInSettings.setChangeNumberNewsSettings(true);
             }
 
             @Override
@@ -85,39 +92,32 @@ public class SettingsActivity extends Activity {
 
 
         // Setup D&D feature and RecyclerView for remove and sort news goup
-        final ArrayList<NewsGroup> listNewsGroups = new ArrayList<NewsGroup>();
-        for (int i = 0; i < 5; i++) {
-            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i+1);
-            listNewsGroups.add(aNewsGroup);
-        }
+        favoriteNewsGroupsList=serverConnectionHandler.getFavoriteNewsGroupFromDataBase();
         dragMgr = new RecyclerViewDragDropManager();
         dragMgr.setInitiateOnMove(false);
         dragMgr.setInitiateOnLongPress(true);
         removeNewsGroupRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        dragRecyclerItemAdapter=new DragRecyclerItemAdapter(listNewsGroups);
+        dragRecyclerItemAdapter=new DragRecyclerItemAdapter(context,favoriteNewsGroupsList);
         removeNewsGroupRecyclerView.setAdapter(dragMgr.createWrappedAdapter(dragRecyclerItemAdapter));
         dragMgr.attachRecyclerView(removeNewsGroupRecyclerView);
 
         //setup recycler view for add news group
-        final ArrayList<NewsGroup> listNewsGroupsAdd = new ArrayList<NewsGroup>();
-        for (int i = 6; i < 8; i++) {
-            NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+(i+1),i+1);
-            listNewsGroupsAdd.add(aNewsGroup);
-        }
-        final NewsGroupAddAdapter addAdapter=new NewsGroupAddAdapter(context,listNewsGroupsAdd);
+        noFavoriteNewsGroupsList=serverConnectionHandler.getNoFavoriteNewsGroupFromDataBase();
+        final NewsGroupAddAdapter addAdapter=new NewsGroupAddAdapter(context,noFavoriteNewsGroupsList);
         addNewsGroupRecyclerView.setAdapter(addAdapter);
 
         ObserverAddNewsGroup.changeAddNewsGroupListener(new ObserverAddNewsGroupListener() {
             @Override
             public void addNewsGroup() {
                 int newsGroupId= ObserverAddNewsGroup.getAddNewsGroup();
-                NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+newsGroupId,newsGroupId);
+                NewsGroup aNewsGroup=serverConnectionHandler.getANewsGroup(newsGroupId);
                 dragRecyclerItemAdapter.addItem(aNewsGroup);
-                for (int i=0;i<listNewsGroupsAdd.size();i++){
-                    if (listNewsGroupsAdd.get(i).getNewsGroupId()==aNewsGroup.getNewsGroupId())
-                        addAdapter.removeANewsGroup(listNewsGroupsAdd.get(i));
+                for (int i = 0; i< noFavoriteNewsGroupsList.size(); i++){
+                    if (noFavoriteNewsGroupsList.get(i).getNewsGroupId()==aNewsGroup.getNewsGroupId())
+                        addAdapter.removeANewsGroup(noFavoriteNewsGroupsList.get(i));
                 }
-
+                serverConnectionHandler.updateUserFavoriteANewsGroup(newsGroupId,1);
+                serverConnectionHandler.updatePriorityOFANewsGroup(newsGroupId,dragRecyclerItemAdapter.getItemCount());
             }
         });
 
@@ -125,17 +125,24 @@ public class SettingsActivity extends Activity {
             @Override
             public void removeNewsGroup() {
                 int newsGroupId= ObserverRemoveNewsGroup.getRemoveNewsGroup();
-                NewsGroup aNewsGroup=new NewsGroup("گروه خبری شماره "+newsGroupId,newsGroupId);
+                NewsGroup aNewsGroup=serverConnectionHandler.getANewsGroup(newsGroupId);
                 addAdapter.addItem(aNewsGroup);
-                for (int i=0;i<listNewsGroups.size();i++){
-                    if (listNewsGroups.get(i).getNewsGroupId()==aNewsGroup.getNewsGroupId())
-                        dragRecyclerItemAdapter.removeItem(listNewsGroups.get(i));
+                for (int i = 0; i< favoriteNewsGroupsList.size(); i++){
+                    if (favoriteNewsGroupsList.get(i).getNewsGroupId()==aNewsGroup.getNewsGroupId())
+                        dragRecyclerItemAdapter.removeItem(favoriteNewsGroupsList.get(i));
                 }
+                serverConnectionHandler.updateUserFavoriteANewsGroup(newsGroupId,0);
+                serverConnectionHandler.updatePriorityOfANewsGroupWhenNoFavorite(newsGroupId,aNewsGroup.getPriority());
 
 
             }
         });
+    }
 
+    @Override
+    public void onBackPressed() {
+        ObserverChangeNumberOfNewsInSettings.setChangeNumberNewsSettings(true);
+        finish();
     }
 
 }

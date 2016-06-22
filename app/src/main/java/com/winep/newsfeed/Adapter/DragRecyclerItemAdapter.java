@@ -1,10 +1,10 @@
 package com.winep.newsfeed.Adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -12,6 +12,7 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.winep.newsfeed.DataModel.NewsGroup;
+import com.winep.newsfeed.Handler.ServerConnectionHandler;
 import com.winep.newsfeed.Presenter.Observer.ObserverRemoveNewsGroup;
 import com.winep.newsfeed.R;
 
@@ -22,11 +23,14 @@ import java.util.List;
  */
 public class DragRecyclerItemAdapter extends RecyclerView.Adapter<DragRecyclerItemAdapter.MyViewHolder> implements DraggableItemAdapter<DragRecyclerItemAdapter.MyViewHolder> {
 
-    List<NewsGroup> listNewsGroup;
+    private List<NewsGroup> listNewsGroup;
+    private Context context;
 
-    public DragRecyclerItemAdapter(List<NewsGroup> myItems) {
+
+    public DragRecyclerItemAdapter(Context contex,List<NewsGroup> myItems) {
         setHasStableIds(true); // this is required for D&D feature.
         listNewsGroup =myItems;
+        this.context=contex;
     }
 
     @Override
@@ -62,6 +66,7 @@ public class DragRecyclerItemAdapter extends RecyclerView.Adapter<DragRecyclerIt
         NewsGroup movedItem = listNewsGroup.remove(fromPosition);
         listNewsGroup.add(toPosition, movedItem);
         notifyItemMoved(fromPosition, toPosition);
+        ServerConnectionHandler.getInstance(context).updatePriorityOfANewsGroupInFavoriteList(movedItem,toPosition+1);
     }
 
     @Override

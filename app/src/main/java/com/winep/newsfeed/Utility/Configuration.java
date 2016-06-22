@@ -16,6 +16,8 @@ public class Configuration {
     public Boolean connectionStatus = false;
     public int defaultNumberOfNewsInHome=3;
     public String sharedPerformanceNumberNewsName="sharedPrefNumberNews";
+    public Boolean defaultFirstInstallStatus=true; //true=first install
+    public String sharedPerformanceFirstInstallApp="sharedPerFirstInstallApp";
 
 
 }

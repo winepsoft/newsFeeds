@@ -5,24 +5,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.SubMenu;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.winep.newsfeed.Adapter.NewsAdapter;
 import com.winep.newsfeed.DataModel.News;
+import com.winep.newsfeed.DataModel.NewsGroup;
+import com.winep.newsfeed.Handler.ServerConnectionHandler;
+import com.winep.newsfeed.Presenter.Observer.ObserverChangeNumberOfNewsInSettings;
+import com.winep.newsfeed.Presenter.Observer.ObserverChangeNumberOfNewsInSettingsListener;
 import com.winep.newsfeed.R;
 import com.winep.newsfeed.Utility.Configuration;
 import com.winep.newsfeed.Utility.DividerItemDecorationRecyclerView;
@@ -30,11 +34,16 @@ import com.winep.newsfeed.Utility.UtilitiesFunction;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private ServerConnectionHandler serverConnectionHandler;
     private Context context;
     private LinearLayout mainLayout;
+    private SharedPreferences sharedPreferencesFirstInstallApp;
+    private Boolean firstInstallStatus;
+    private NavigationView navigationView;
+    private ArrayList<NewsGroup> newsGroupList;
+
 
 
     @Override
@@ -43,8 +52,25 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         context=this;
+        serverConnectionHandler=ServerConnectionHandler.getInstance(context);
         Configuration.getConfig().connectionStatus= UtilitiesFunction.getInstance().checkNetworkConnection(context);
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Configuration.getConfig().sharedPerformanceFirstInstallApp, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        firstInstallStatus = pref.getBoolean(Configuration.getConfig().sharedPerformanceFirstInstallApp, Configuration.getConfig().defaultFirstInstallStatus);
+        newsGroupList =new ArrayList<>();
+        if (firstInstallStatus){
+            newsGroupList =serverConnectionHandler.getNewsGroupFromServer();
+            serverConnectionHandler.addNewsGroupInDataBaseForFirst(newsGroupList);
+            editor.putBoolean(Configuration.getConfig().sharedPerformanceFirstInstallApp,false);
+            editor.commit();
+
+        }
+        else{
+            newsGroupList=serverConnectionHandler.getFavoriteNewsGroupFromDataBase();
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -61,61 +87,49 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        Menu m = navigationView.getMenu() ;
-        SubMenu topChannelMenu = m.addSubMenu(R.string.newsGroup);
-        topChannelMenu.add("گروه خبری 1");
-        topChannelMenu.add("گروه خبری 2");
-        topChannelMenu.add("گروه خبری 3");
-        topChannelMenu.add("گروه خبری 4");
-        topChannelMenu.add("گروه خبری 5");
-        m.add(R.string.book_mark).setIcon(R.drawable.ic_menu_gallery);
-        m.add(R.string.settings).setIcon(R.drawable.ic_menu_manage);
-        m.add(R.string.share).setIcon(R.drawable.ic_menu_share);
-        m.add(R.string.for_us).setIcon(R.drawable.ic_menu_send);
-
-
-        int newsGroupNumber;
-        String newsGroupTitle;
-
-        ArrayList<News> listNews = new ArrayList<News>();
-        listNews = createNews(getNumberOfNewsInHome());
-        NewsAdapter adapter = new NewsAdapter(context,listNews);
+        createNavigationDrawerMenu(newsGroupList);
 
         mainLayout=(LinearLayout)findViewById(R.id.mainLayout);
-        for (int i=0;i<5;i++){
+        for (int i = 0; i< newsGroupList.size(); i++)
+            mainLayout.addView(createViewNewsGroup(newsGroupList.get(i),getNewsOfANewsGroup(newsGroupList.get(i).getNewsGroupId())));
+        ObserverChangeNumberOfNewsInSettings.changeNumberOfNewsInSettingsListener(new ObserverChangeNumberOfNewsInSettingsListener() {
+            @Override
+            public void changeNumberOfNewsInSettingsPage() {
+                recreate();
+            }
+        });
 
-            LinearLayout layout = new LinearLayout(this);
-            layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            layout.setOrientation(LinearLayout.VERTICAL);
+    }
 
-            View newsGroupLayout = getLayoutInflater().inflate(R.layout.news_group_item_for_home,layout, false);
-            RecyclerView newsRecyclerView=(RecyclerView)newsGroupLayout.findViewById(R.id.newsGroupRecyclerView);
-            Button btnNewsGroupTitle=(Button)newsGroupLayout.findViewById(R.id.btn_news_group_title);
+    private LinearLayout createViewNewsGroup(NewsGroup aNewsGroup,ArrayList<News> newsList){
+        LinearLayout layout = new LinearLayout(this);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        layout.setOrientation(LinearLayout.VERTICAL);
 
-            newsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            newsRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
-            newsRecyclerView.setAdapter(adapter);
+        View newsGroupLayout = getLayoutInflater().inflate(R.layout.news_group_item_for_home,layout, false);
+        RecyclerView newsRecyclerView=(RecyclerView)newsGroupLayout.findViewById(R.id.newsGroupRecyclerView);
+        Button btnNewsGroupTitle=(Button)newsGroupLayout.findViewById(R.id.btn_news_group_title);
 
-            newsGroupNumber=i+1;
-            newsGroupTitle="گروه خبری شماره "+newsGroupNumber;
-            btnNewsGroupTitle.setText(newsGroupTitle);
-            final String finalNewsGroupTitle = newsGroupTitle;
-            btnNewsGroupTitle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent=new Intent(context, NewsOfAGroupActivity.class);
-                    intent.putExtra("resourceName", finalNewsGroupTitle);
-                    context.startActivity(intent);
-                }
-            });
+        newsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        newsRecyclerView.addItemDecoration(new DividerItemDecorationRecyclerView(this, LinearLayoutManager.VERTICAL));
+        NewsAdapter adapter = new NewsAdapter(context,newsList);
+        newsRecyclerView.setAdapter(adapter);
 
-            layout.addView(newsGroupLayout);
-            mainLayout.addView(layout);
-        }
+        final String finalNewsGroupTitle = aNewsGroup.getTitle();
+        btnNewsGroupTitle.setText(aNewsGroup.getTitle());
+        btnNewsGroupTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(context, NewsOfAGroupActivity.class);
+                intent.putExtra("resourceName", finalNewsGroupTitle);
+                context.startActivity(intent);
+            }
+        });
 
+        layout.addView(newsGroupLayout);
+        return layout;
     }
 
     private int getNumberOfNewsInHome(){
@@ -123,7 +137,6 @@ public class MainActivity extends AppCompatActivity
         final SharedPreferences.Editor editor = pref.edit();
         return pref.getInt(Configuration.getConfig().sharedPerformanceNumberNewsName,Configuration.getConfig().defaultNumberOfNewsInHome);
     }
-
     private ArrayList<News> createNews(int newsNumber){
         ArrayList<News> listNews =new ArrayList<News>();
         News aNews=new News("عنوان خبر",
@@ -136,6 +149,24 @@ public class MainActivity extends AppCompatActivity
             listNews.add(aNews);
         }
         return listNews;
+    }
+
+    private ArrayList<News> getNewsOfANewsGroup(int newsGroupId){
+        ArrayList<News> listNews = new ArrayList<News>();
+        listNews = createNews(getNumberOfNewsInHome());
+        return listNews;
+    }
+
+    private void createNavigationDrawerMenu(ArrayList<NewsGroup> newsGroupList){
+        Menu m = navigationView.getMenu() ;
+        SubMenu topChannelMenu = m.addSubMenu(R.string.newsGroup);
+        for (int i=0;i<newsGroupList.size();i++){
+            topChannelMenu.add(newsGroupList.get(i).getTitle());
+        }
+        m.add(R.string.book_mark).setIcon(R.drawable.ic_menu_gallery);
+        m.add(R.string.settings).setIcon(R.drawable.ic_menu_manage);
+        m.add(R.string.share).setIcon(R.drawable.ic_menu_share);
+        m.add(R.string.for_us).setIcon(R.drawable.ic_menu_send);
     }
 
     @Override
